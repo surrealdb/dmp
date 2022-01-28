@@ -2,7 +2,7 @@
 
 The Diff Match and Patch libraries offer robust algorithms to perform the operations required for synchronising plain text. This repository contains a Rust version of the original [diff-match-patch](https://github.com/google/diff-match-patch) library, using up-to-date crate packages.
 
-[![](https://img.shields.io/badge/status-alpha-ff00bb.svg?style=flat-square)](https://github.com/surrealdb/dmp) [![docs.rs](https://img.shields.io/docsrs/dmpma?style=flat-square)](https://docs.rs/dmpma/) [![Crates.io](https://img.shields.io/crates/v/dmpma?style=flat-square)](https://crates.io/crates/dmpma) [![](https://img.shields.io/badge/license-MIT-00bfff.svg?style=flat-square)](https://github.com/surrealdb/dmp) 
+[![](https://img.shields.io/badge/status-alpha-ff00bb.svg?style=flat-square)](https://github.com/surrealdb/dmp) [![docs.rs](https://img.shields.io/docsrs/dmp?style=flat-square)](https://docs.rs/dmp/) [![Crates.io](https://img.shields.io/crates/v/dmp?style=flat-square)](https://crates.io/crates/dmp) [![](https://img.shields.io/badge/license-MIT-00bfff.svg?style=flat-square)](https://github.com/surrealdb/dmp) 
 
 #### Features
 
