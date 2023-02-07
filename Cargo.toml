@@ -12,5 +12,5 @@ categories = ["algorithms", "text-editors", "text-processing"]
 license = "MIT"
 
 [dependencies]
-urlencoding = "2.1.0"
-regex = "1.5.4"
+urlencoding = "2.1.2"
+regex = "1.7.1"
