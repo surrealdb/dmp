@@ -1,8 +1,9 @@
 mod diff;
+#[cfg(any(test, fuzzing))]
+pub mod fuzz;
 mod patch;
 
 use core::char;
-use regex::Regex;
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::result::Result;
@@ -48,6 +49,7 @@ pub fn new() -> Dmp {
 #[derive(Debug)]
 pub enum Error {
     InvalidInput,
+    MalformedPatch,
     PatternTooLong,
 }
 
@@ -661,6 +663,7 @@ impl Dmp {
         diffs
     }
 
+    /*
     /// Split two texts into an array of strings.  Reduce the texts to a string
     /// of hashes where each Unicode character represents one word.
     /// 
@@ -672,7 +675,7 @@ impl Dmp {
     /// Three element tuple, containing the encoded text1, the encoded text2 and
     /// the array of unique strings.  The zeroth element of the array of unique
     /// strings is intentionally blank.
-    pub fn diff_words_tochars(
+    fn diff_words_tochars(
         &self,
         text1: &String,
         text2: &String,
@@ -684,7 +687,9 @@ impl Dmp {
         let chars2 = dmp.diff_words_tochars_munge(text2, &mut wordarray, &mut wordhash);
         (chars1, chars2, wordarray)
     }
+    */
 
+    /*
     /// Split a text into an array of strings.  Reduce the texts to a string
     /// of hashes where each Unicode character represents one word.
     /// Modifies wordarray and wordhash through being a closure.
@@ -719,7 +724,9 @@ impl Dmp {
         }
         chars
     }
+    */
 
+    /*
     fn make_token_dict(
         &self,
         word: &str,
@@ -732,6 +739,7 @@ impl Dmp {
         }
         char::from_u32(wordhash[word]).unwrap().to_string()
     }
+    */
 
     /// Split two texts into an array of strings.  Reduce the texts to a string
     /// of hashes where each Unicode character represents one line.
@@ -2415,9 +2423,10 @@ impl Dmp {
                                     let temp3: String =
                                         text[..(start_loc + index2) as usize].iter().collect();
                                     let diffs_text_len = mod1.text.chars().count();
-                                    let temp4: String = text[(start_loc
+                                    let temp4: String = text.get((start_loc
                                         + self.diff_xindex(&diffs, index1 + diffs_text_len as i32))
-                                        as usize..]
+                                        as usize..)
+                                        .ok_or(Error::MalformedPatch)?
                                         .iter()
                                         .collect();
                                     let temp5 = temp3 + temp4.as_str();
@@ -2433,7 +2442,7 @@ impl Dmp {
             }
         }
         // Strip the padding off.
-        text = text[null_padding.len()..(text.len() - null_padding.len())].to_vec();
+        text = text.get(null_padding.len()..(text.len() - null_padding.len())).ok_or(Error::MalformedPatch)?.to_vec();
         Ok((text, results))
     }
 
