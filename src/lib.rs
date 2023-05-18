@@ -2713,27 +2713,32 @@ impl Dmp {
         patch.length2 = 0;
         for text_item in text.iter().take(text.len() - 1).skip(1) {
             text_vec = text_item.chars().collect();
-            if text_vec[0] == '+' {
-                // Insertion.
-                let mut temp6: String = text_vec[1..].iter().collect();
-                temp6 = decode(temp6.as_str()).map_err(|_| Error::InvalidInput)?.into_owned();
-                patch.length2 += temp6.chars().count() as i32;
-                patch.diffs.push(Diff::new(1, temp6));
-            } else if text_vec[0] == '-' {
-                // Deletion.
-                let mut temp6: String = text_vec[1..].iter().collect();
-                temp6 = decode(temp6.as_str()).map_err(|_| Error::InvalidInput)?.into_owned();
-                patch.length1 += temp6.chars().count() as i32;
-                patch.diffs.push(Diff::new(-1, temp6));
-            } else if text_vec[0] == ' ' {
-                // Minor equality.
-                let mut temp6: String = text_vec[1..].iter().collect();
-                temp6 = decode(temp6.as_str()).map_err(|_| Error::InvalidInput)?.into_owned();
-                patch.length1 += temp6.chars().count() as i32;
-                patch.length2 += temp6.chars().count() as i32;
-                patch.diffs.push(Diff::new(0, temp6));
-            } else {
-                return Err(Error::InvalidInput);
+            match text_vec.first().ok_or(Error::InvalidInput)? {
+                '+' => {
+                     // Insertion.
+                    let mut temp6: String = text_vec[1..].iter().collect();
+                    temp6 = decode(temp6.as_str()).map_err(|_| Error::InvalidInput)?.into_owned();
+                    patch.length2 += temp6.chars().count() as i32;
+                    patch.diffs.push(Diff::new(1, temp6));
+                }
+                '-' => {
+                    // Deletion.
+                    let mut temp6: String = text_vec[1..].iter().collect();
+                    temp6 = decode(temp6.as_str()).map_err(|_| Error::InvalidInput)?.into_owned();
+                    patch.length1 += temp6.chars().count() as i32;
+                    patch.diffs.push(Diff::new(-1, temp6));
+                }
+                ' ' => {
+                    // Minor equality.
+                    let mut temp6: String = text_vec[1..].iter().collect();
+                    temp6 = decode(temp6.as_str()).map_err(|_| Error::InvalidInput)?.into_owned();
+                    patch.length1 += temp6.chars().count() as i32;
+                    patch.length2 += temp6.chars().count() as i32;
+                    patch.diffs.push(Diff::new(0, temp6));
+                }
+                _ => {
+                    return Err(Error::InvalidInput);
+                }
             }
         }
         Ok(patch)
