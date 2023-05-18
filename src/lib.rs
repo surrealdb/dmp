@@ -1763,7 +1763,7 @@ impl Dmp {
     /// 
     /// # Return
     /// Source text.
-    pub fn diff_text1(&self, diffs: &mut Vec<Diff>) -> String {
+    pub fn diff_text1(&self, diffs: &Vec<Diff>) -> String {
         let mut text: String = "".to_string();
         for adiff in diffs {
             if adiff.operation != 1 {
@@ -2164,7 +2164,7 @@ impl Dmp {
             self.diff_cleanup_semantic(&mut diffs);
             self.diff_cleanup_efficiency(&mut diffs);
         }
-        self.patch_make4(text1, &mut diffs)
+        self.patch_make4(text1, &diffs)
     }
 
     /// Compute a list of patches to turn text1 into text2.
@@ -2175,7 +2175,7 @@ impl Dmp {
     /// 
     /// # Return
     /// Vector of Patch objects.
-    pub fn patch_make2(&self, diffs: &mut Vec<Diff>) -> Vec<Patch> {
+    pub fn patch_make2(&self, diffs: &Vec<Diff>) -> Vec<Patch> {
         let text1 = self.diff_text1(diffs);
         self.patch_make4(text1.as_str(), diffs)
     }
@@ -2189,7 +2189,7 @@ impl Dmp {
     /// 
     /// # Return
     /// Vector of Patch objects.
-    pub fn patch_make3(&self, text1: &str, _text2: &str, diffs: &mut Vec<Diff>) -> Vec<Patch> {
+    pub fn patch_make3(&self, text1: &str, _text2: &str, diffs: &Vec<Diff>) -> Vec<Patch> {
         self.patch_make4(text1, diffs)
     }
 
@@ -2201,7 +2201,7 @@ impl Dmp {
     /// 
     /// # Return
     /// Array of Patch objects.
-    pub fn patch_make4(&self, text1: &str, diffs: &mut Vec<Diff>) -> Vec<Patch> {
+    pub fn patch_make4(&self, text1: &str, diffs: &Vec<Diff>) -> Vec<Patch> {
         let mut patches: Vec<Patch> = vec![];
         if diffs.is_empty() {
             return patches; // Get rid of the None case.
