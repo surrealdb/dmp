@@ -503,10 +503,10 @@ impl Dmp {
         let mut k2start: i32 = 0;
         let mut k2end: i32 = 0;
         for d in 0..max_d {
-            if self.diff_timeout.is_some()
-                && start_time.elapsed().as_secs_f32() >= self.diff_timeout.unwrap()
-            {
-                break;
+            if let Some(diff_timeout) = self.diff_timeout {
+                if start_time.elapsed().as_secs_f32() >= diff_timeout {
+                    break;
+                }
             }
 
             let d1 = d as i32;
@@ -744,7 +744,7 @@ impl Dmp {
     /// Three element tuple, containing the encoded text1, the encoded text2 and
     /// the array of unique strings.  The zeroth element of the array of unique
     /// strings is intentionally blank.
-    pub fn diff_lines_tochars(
+    fn diff_lines_tochars(
         &mut self,
         text1: &Vec<char>,
         text2: &Vec<char>,
@@ -766,7 +766,7 @@ impl Dmp {
     /// 
     /// Return
     /// Encoded string.
-    pub fn diff_lines_tochars_munge(
+    fn diff_lines_tochars_munge(
         &mut self,
         text: &Vec<char>,
         linearray: &mut Vec<String>,
@@ -838,12 +838,12 @@ impl Dmp {
     /// Determine the common prefix of two chars.
     /// 
     /// Args:
-    /// text1: First chars.
-    /// text2: Second chars.
+    /// - text1: First chars.
+    /// - text2: Second chars.
     /// 
     /// Returns:
     /// The number of characters common to the start of each chars.
-    pub fn diff_common_prefix(&mut self, text1: &Vec<char>, text2: &Vec<char>) -> i32 {
+    fn diff_common_prefix(&mut self, text1: &Vec<char>, text2: &Vec<char>) -> i32 {
         if text1.is_empty() || text2.is_empty() {
             return 0;
         }
@@ -867,7 +867,7 @@ impl Dmp {
     /// 
     /// # Return
     /// The number of characters common to the end of each chars.
-    pub fn diff_common_suffix(&mut self, text1: &Vec<char>, text2: &Vec<char>) -> i32 {
+    fn diff_common_suffix(&mut self, text1: &Vec<char>, text2: &Vec<char>) -> i32 {
         if text1.is_empty() || text2.is_empty() {
             return 0;
         }
@@ -895,7 +895,7 @@ impl Dmp {
     /// # Return
     /// The number of characters common to the end of the first
     /// chars and the start of the second chars.
-    pub fn diff_common_overlap(&mut self, text1: &Vec<char>, text2: &Vec<char>) -> i32 {
+    fn diff_common_overlap(&mut self, text1: &Vec<char>, text2: &Vec<char>) -> i32 {
         let text1_length = text1.len();
         let text2_length = text2.len();
         if text1_length == 0 || text2_length == 0 {
@@ -944,13 +944,8 @@ impl Dmp {
     /// 
     /// # Return
     /// Vector of string after spliting according to character.
-    pub fn split_by_char(&mut self, text: &str, ch: char) -> Vec<String> {
-        let temp: Vec<&str> = text.split(ch).collect();
-        let mut temp1: Vec<String> = vec![];
-        for temp_item in &temp {
-            temp1.push(temp_item.to_string());
-        }
-        temp1
+    fn split_by_char(&mut self, text: &str, ch: char) -> Vec<String> {
+        text.split(ch).map(str::to_owned).collect()
     }
 
     /// split the string accoring to given characters "@@ ".
@@ -960,13 +955,8 @@ impl Dmp {
     ///
     /// # Return
     /// Vector of string after spliting according to characters.
-    pub fn split_by_chars(&mut self, text: &str) -> Vec<String> {
-        let temp: Vec<&str> = text.split("@@ ").collect();
-        let mut temp1: Vec<String> = vec![];
-        for temp_item in &temp {
-            temp1.push(temp_item.to_string());
-        }
-        temp1
+    fn split_by_chars(&mut self, text: &str) -> Vec<String> {
+        text.split("@@ ").map(str::to_owned).collect()
     }
 
     /// Do the two texts share a substring which is at least half the length of
@@ -981,7 +971,7 @@ impl Dmp {
     /// Five element Vector, containing the prefix of text1, the suffix of text1,
     /// the prefix of text2, the suffix of text2 and the common middle.  Or empty vector
     /// if there was no match.
-    pub fn diff_half_match(&mut self, text1: &Vec<char>, text2: &Vec<char>) -> Vec<String> {
+    fn diff_half_match(&mut self, text1: &Vec<char>, text2: &Vec<char>) -> Vec<String> {
         // Don't risk returning a non-optimal diff if we have unlimited time.
         if self.diff_timeout.is_none() {
             return vec![];
@@ -1934,7 +1924,7 @@ impl Dmp {
     ///
     /// # Return
     /// Best match index or -1.
-    pub fn match_bitap(&mut self, text: &Vec<char>, patern: &Vec<char>, loc: i32) -> Result<i32, Error> {
+    fn match_bitap(&mut self, text: &Vec<char>, patern: &Vec<char>, loc: i32) -> Result<i32, Error> {
         // check for maxbits limit.
         if !(self.match_maxbits == 0 || patern.len() as i32 <= self.match_maxbits) {
             return Err(Error::PatternTooLong);
@@ -2054,7 +2044,7 @@ impl Dmp {
     /// 
     /// # Return
     /// Overall score for match (0.0 = good, 1.0 = bad).
-    pub fn match_bitap_score(&mut self, e: i32, x: i32, loc: i32, patern: &Vec<char>) -> f32 {
+    fn match_bitap_score(&mut self, e: i32, x: i32, loc: i32, patern: &Vec<char>) -> f32 {
         let accuracy: f32 = (e as f32) / (patern.len() as f32);
         let proximity: i32 = (loc - x).abs();
         if self.match_distance == 0 {
@@ -2075,7 +2065,7 @@ impl Dmp {
     /// 
     /// # Return
     /// Hash of character locations.
-    pub fn match_alphabet(&mut self, patern: &Vec<char>) -> HashMap<char, i32> {
+    fn match_alphabet(&mut self, patern: &Vec<char>) -> HashMap<char, i32> {
         let mut s: HashMap<char, i32> = HashMap::new();
         for patern_item in patern {
             s.insert(*patern_item, 0);
@@ -2097,7 +2087,7 @@ impl Dmp {
     /// Args:
     /// - patch: The patch to grow.
     /// - text: Source text.
-    pub fn patch_add_context(&mut self, patch: &mut Patch, text: &mut Vec<char>) {
+    fn patch_add_context(&mut self, patch: &mut Patch, text: &mut Vec<char>) {
         if text.is_empty() {
             return;
         }
@@ -2291,24 +2281,8 @@ impl Dmp {
     ///
     /// Returns:
     /// Vector of Patch objects.
-    pub fn patch_deep_copy(&mut self, patches: &mut Vec<Patch>) -> Vec<Patch> {
-        let mut patches_copy: Vec<Patch> = vec![];
-        for patches_item in patches {
-            let mut patch_copy = Patch::new(vec![], 0, 0, 0, 0);
-            for j in 0..patches_item.diffs.len() {
-                let diff_copy = Diff::new(
-                    patches_item.diffs[j].operation,
-                    patches_item.diffs[j].text.clone(),
-                );
-                patch_copy.diffs.push(diff_copy);
-            }
-            patch_copy.start1 = patches_item.start1;
-            patch_copy.start2 = patches_item.start2;
-            patch_copy.length1 = patches_item.length1;
-            patch_copy.length2 = patches_item.length2;
-            patches_copy.push(patch_copy);
-        }
-        patches_copy
+    fn patch_deep_copy(&mut self, patches: &mut Vec<Patch>) -> Vec<Patch> {
+        patches.clone()
     }
 
     /// Merge a set of patches onto the text.  Return a patched text, as well
@@ -2663,7 +2637,6 @@ impl Dmp {
     /// # Return
     /// Text representation of patches.
     pub fn patch_to_text(&mut self, patches: &mut Vec<Patch>) -> String {
-
         let mut text: String = "".to_string();
         for patches_item in patches {
             text += (patches_item.to_string()).as_str();
@@ -2720,16 +2693,16 @@ impl Dmp {
                 i += 1;
             }
             if temp == 0 {
-                patch.start1 = s.parse::<i32>().unwrap() as i32 - 1;
+                patch.start1 = s.parse::<i32>().map_err(|_| Error::InvalidInput)? - 1;
                 temp += 1;
             } else if temp == 1 {
-                patch.length1 = s.parse::<i32>().unwrap();
+                patch.length1 = s.parse::<i32>().map_err(|_| Error::InvalidInput)?;
                 temp += 1;
             } else if temp == 2 {
-                patch.start2 = s.parse::<i32>().unwrap() - 1;
+                patch.start2 = s.parse::<i32>().map_err(|_| Error::InvalidInput)? - 1;
                 temp += 1;
             } else if temp == 3 {
-                patch.length2 = s.parse::<i32>().unwrap();
+                patch.length2 = s.parse::<i32>().map_err(|_| Error::InvalidInput)?;
                 temp += 1;
             } else {
                 return Err(Error::InvalidInput);
@@ -2743,19 +2716,19 @@ impl Dmp {
             if text_vec[0] == '+' {
                 // Insertion.
                 let mut temp6: String = text_vec[1..].iter().collect();
-                temp6 = decode(temp6.as_str()).unwrap().into_owned();
+                temp6 = decode(temp6.as_str()).map_err(|_| Error::InvalidInput)?.into_owned();
                 patch.length2 += temp6.chars().count() as i32;
                 patch.diffs.push(Diff::new(1, temp6));
             } else if text_vec[0] == '-' {
                 // Deletion.
                 let mut temp6: String = text_vec[1..].iter().collect();
-                temp6 = decode(temp6.as_str()).unwrap().into_owned();
+                temp6 = decode(temp6.as_str()).map_err(|_| Error::InvalidInput)?.into_owned();
                 patch.length1 += temp6.chars().count() as i32;
                 patch.diffs.push(Diff::new(-1, temp6));
             } else if text_vec[0] == ' ' {
                 // Minor equality.
                 let mut temp6: String = text_vec[1..].iter().collect();
-                temp6 = decode(temp6.as_str()).unwrap().into_owned();
+                temp6 = decode(temp6.as_str()).map_err(|_| Error::InvalidInput)?.into_owned();
                 patch.length1 += temp6.chars().count() as i32;
                 patch.length2 += temp6.chars().count() as i32;
                 patch.diffs.push(Diff::new(0, temp6));
