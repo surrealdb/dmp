@@ -29,7 +29,7 @@ fuzz_target!(|data: &[u8]| {
         Err(_) => return,
     };
 
-    let mut dmp = Dmp::new();
+    let dmp = Dmp::new();
     dmp.diff_main(a, b, check_lines);
     let _ = dmp.match_main(a, b, flags as i32);
     if let Ok(patches) = dmp.patch_from_text(a.to_string()) {
