@@ -31,5 +31,9 @@ fuzz_target!(|data: &[u8]| {
 
     let mut dmp = Dmp::new();
     dmp.diff_main(a, b, check_lines);
-    let _ = dmp.patch_from_text(a.to_string());
+    let _ = dmp.match_main(a, b, flags as i32);
+    if let Ok(patches) = dmp.patch_from_text(a.to_string()) {
+        dmp.patch_to_text(&patches);
+        //let _ = dmp.patch_apply(&patches, b);
+    }
 });
