@@ -12,6 +12,14 @@ The Diff Match and Patch libraries offer robust algorithms to perform the operat
 - Apply a set of patches onto a block of text to convert it to another block of text
 - Uses best-effort to apply patch even when the underlying text doesn't fully match.
 
+#### Fuzzing
+
+A fuzzer is provided as a sanity-check:
+
+```console
+RUST_BACKTRACE=1 cargo fuzz run fuzz
+```
+
 #### Original
 
 This code is forked originally from [diff_match_patch.rs](https://crates.io/crates/diff_match_patch), licensed under the [MIT](https://choosealicense.com/licenses/mit/) license.
