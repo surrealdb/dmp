@@ -77,11 +77,6 @@ fn find_char(cha: char, text: &Vec<char>, start: usize) -> i32 {
     -1
 }
 
-trait StringView {
-    fn len(&self) -> usize;
-    fn slice(&self, range: std::ops::Range<usize>) -> Result<String, std::string::FromUtf16Error>;
-}
-
 impl Dmp {
     /// Returns a new dmp object.
     pub fn new() -> Self {
