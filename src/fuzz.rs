@@ -27,7 +27,7 @@ pub fn fuzz(data: &[u8]) {
 	};
 
 	// exercise a bunch of functions
-	let dmp = Dmp::new();
+	let dmp = Dmp::default();
 	dmp.diff_main(a, b, check_lines);
 	let _ = dmp.match_main(a, b, flags as i32);
 	if let Ok(patches) = dmp.patch_from_text(a.to_string()) {

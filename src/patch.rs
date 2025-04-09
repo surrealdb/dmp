@@ -4,7 +4,6 @@ use std::fmt::{Debug, Display, Formatter};
 use urlencoding::encode;
 
 #[derive(Clone, PartialEq)]
-#[warn(clippy::inherent_to_string)]
 pub struct Patch {
 	pub diffs: Vec<Diff>,
 	pub start1: i32,

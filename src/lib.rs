@@ -1042,10 +1042,14 @@ impl Dmp {
 		let mut best_shorttext_b = "".to_string();
 		let mut j: i32 = self.kmp(short_text, &seed, 0);
 		while j != -1 {
-			let prefix_length =
-				self.diff_common_prefix(&long_text[(i as usize)..], &short_text[(j as usize)..]);
-			let suffix_length =
-				self.diff_common_suffix(&long_text[..(i as usize)], &short_text[..(j as usize)]);
+			let prefix_length = self.diff_common_prefix(
+				&long_text[(i as usize)..],
+				&short_text[(j as usize)..],
+			);
+			let suffix_length = self.diff_common_suffix(
+				&long_text[..(i as usize)],
+				&short_text[..(j as usize)],
+			);
 			if best_common.len() < suffix_length as usize + prefix_length as usize {
 				best_common = short_text
 					[(j as usize - suffix_length as usize)..(j as usize + prefix_length as usize)]
@@ -1599,7 +1603,7 @@ impl Dmp {
 				let text2_vec: Vec<char> = diffs[i as usize + 1].text.chars().collect();
 				if self.endswith(&text_vec, &text1_vec) {
 					// Shift the edit over the previous equality.
-					if diffs[i as usize - 1].text.is_empty() {
+					if !diffs[i as usize - 1].text.is_empty() {
 						let temp1: String = diffs[i as usize - 1].text.clone();
 						let temp2: String =
 							text_vec[..(text_vec.len() - text1_vec.len())].iter().collect();
