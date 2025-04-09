@@ -9,6 +9,7 @@ use core::char;
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::result::Result;
+use trice::Instant;
 use urlencoding::decode;
 
 pub enum LengthUnit {
@@ -106,27 +107,7 @@ impl Dmp {
 	/// # Return
 	/// Vector of diffs as changes.
 	pub fn diff_main(&self, text1: &str, text2: &str, checklines: bool) -> Vec<Diff> {
-		self.diff_main_internal(text1, text2, checklines, Self::now_millis())
-	}
-
-	#[cfg(target_arch = "wasm32")]
-	fn now_millis() -> f64 {
-		web_sys::window()
-			.expect("no global `window` exists")
-			.performance()
-			.expect("performance should be available")
-			.now()
-	}
-
-	#[cfg(not(target_arch = "wasm32"))]
-	fn now_millis() -> f64 {
-		use std::time::{SystemTime, UNIX_EPOCH};
-		let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-		now.as_secs_f64() * 1000.0
-	}
-
-	fn elapsed(start_time: f64) -> f32 {
-		(Self::now_millis() - start_time) as f32
+		self.diff_main_internal(text1, text2, checklines, Instant::now())
 	}
 
 	fn diff_main_internal(
@@ -134,7 +115,7 @@ impl Dmp {
 		text1: &str,
 		text2: &str,
 		checklines: bool,
-		start_time: f64,
+		start_time: Instant,
 	) -> Vec<Diff> {
 		// check for empty text
 		if text1.is_empty() && text2.is_empty() {
@@ -202,7 +183,7 @@ impl Dmp {
 		text1: &Vec<char>,
 		text2: &Vec<char>,
 		checklines: bool,
-		start_time: f64,
+		start_time: Instant,
 	) -> Vec<Diff> {
 		let mut diffs: Vec<Diff> = Vec::new();
 		if text1.is_empty() {
@@ -408,7 +389,12 @@ impl Dmp {
 	//    self.diff_linemode_internal(text1, text2, Instant::now())
 	//}
 
-	fn diff_linemode_internal(&self, text1: &[char], text2: &[char], start_time: f64) -> Vec<Diff> {
+	fn diff_linemode_internal(
+		&self,
+		text1: &[char],
+		text2: &[char],
+		start_time: Instant,
+	) -> Vec<Diff> {
 		// Scan the text on a line-by-line basis first.
 		let (text3, text4, linearray) = self.diff_lines_tochars(text1, text2);
 
@@ -485,7 +471,12 @@ impl Dmp {
 	//    self.diff_bisect_internal(char1, char2, Instant::now())
 	//}
 
-	fn diff_bisect_internal(&self, char1: &[char], char2: &[char], start_time: f64) -> Vec<Diff> {
+	fn diff_bisect_internal(
+		&self,
+		char1: &[char],
+		char2: &[char],
+		start_time: Instant,
+	) -> Vec<Diff> {
 		let text1_length = char1.len() as i32;
 		let text2_length = char2.len() as i32;
 		let max_d: i32 = (text1_length + text2_length + 1) / 2;
@@ -507,7 +498,7 @@ impl Dmp {
 		let mut k2end: i32 = 0;
 		for d in 0..max_d {
 			if let Some(diff_timeout) = self.diff_timeout {
-				if Self::elapsed(start_time) >= diff_timeout {
+				if start_time.elapsed().as_secs_f32() >= diff_timeout {
 					break;
 				}
 			}
@@ -641,7 +632,7 @@ impl Dmp {
 		text2: &[char],
 		x: i32,
 		y: i32,
-		start_time: f64,
+		start_time: Instant,
 	) -> Vec<Diff> {
 		let text1a: String = text1[..(x as usize)].iter().collect();
 		let text2a: String = text2[..(y as usize)].iter().collect();
