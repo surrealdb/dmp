@@ -21,6 +21,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Directories potentially created by IDEs
+.idea/
+
 # -----------------------------------
 # Files
 # -----------------------------------

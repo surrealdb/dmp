@@ -1,0 +1,85 @@
+name: Continuous integration
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+  merge_group:
+
+env:
+  RUSTFLAGS: -D warnings
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  format:
+    name: Check format
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Check format
+        run: cargo fmt --all --check
+
+  check:
+    name: Check all features
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-hack
+        run: cargo install --locked cargo-hack
+
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Run hack check
+        run: cargo hack check --feature-powerset --optional-deps
+
+  clippy:
+    name: Check clippy
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-hack
+        run: cargo install --locked cargo-hack
+
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Run hack clippy
+        run: cargo hack clippy --no-deps --feature-powerset --optional-deps --all-targets --tests
+
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-hack
+        run: cargo install --locked cargo-hack
+
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Run hack test
+        run:  cargo hack test --feature-powerset --optional-deps
