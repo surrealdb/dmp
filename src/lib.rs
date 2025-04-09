@@ -1042,14 +1042,10 @@ impl Dmp {
 		let mut best_shorttext_b = "".to_string();
 		let mut j: i32 = self.kmp(short_text, &seed, 0);
 		while j != -1 {
-			let prefix_length = self.diff_common_prefix(
-				&long_text[(i as usize)..],
-				&short_text[(j as usize)..],
-			);
-			let suffix_length = self.diff_common_suffix(
-				&long_text[..(i as usize)],
-				&short_text[..(j as usize)],
-			);
+			let prefix_length =
+				self.diff_common_prefix(&long_text[(i as usize)..], &short_text[(j as usize)..]);
+			let suffix_length =
+				self.diff_common_suffix(&long_text[..(i as usize)], &short_text[..(j as usize)]);
 			if best_common.len() < suffix_length as usize + prefix_length as usize {
 				best_common = short_text
 					[(j as usize - suffix_length as usize)..(j as usize + prefix_length as usize)]
